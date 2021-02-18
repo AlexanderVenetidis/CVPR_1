@@ -117,9 +117,9 @@ for x in good:
 pts1 = np.int32(pts1)
 pts2 = np.int32(pts2)
 
-print(pts1,pts2)
+# print(pts1,pts2)
 F, mask = cv.findFundamentalMat(pts1,pts2,cv.FM_LMEDS)
-print(F)
+# print(F)
 # We select only inlier points
 pts1 = pts1[mask.ravel()==1]
 pts2 = pts2[mask.ravel()==1]
@@ -184,16 +184,16 @@ img2_rectified = cv.warpPerspective(img2, H2, (w2, h2))
 # cv.imwrite("rectified_2.png", img2_rectified)
 
 # Draw the rectified images
-fig, axes = plt.subplots(1, 2, figsize=(15, 10))
-axes[0].imshow(img2_rectified, cmap="gray")
-axes[1].imshow(img1_rectified, cmap="gray")
+# fig, axes = plt.subplots(1, 2, figsize=(15, 10))
+# axes[0].imshow(img2_rectified, cmap="gray")
+# axes[1].imshow(img1_rectified, cmap="gray")
 # axes[0].axhline(250)
 # axes[1].axhline(250)
 # axes[0].axhline(450)
 # axes[1].axhline(450)
 # plt.suptitle("Rectified images")
 # # plt.savefig("rectified_images.png")
-plt.show()
+# plt.show()
 
 #
 #
@@ -210,7 +210,29 @@ plt.show()
 img2_gray = cv.cvtColor(img2_rectified, cv.COLOR_BGR2GRAY)
 img1_gray = cv.cvtColor(img1_rectified, cv.COLOR_BGR2GRAY)
 #
-stereo = cv.StereoBM_create(numDisparities=16, blockSize=15)
+stereo = cv.StereoSGBM_create(numDisparities=32, blockSize=27)
 disparity = stereo.compute(img1_gray,img2_gray)
-plt.imshow(disparity,'gray')
+
+wsize=5
+max_disp = 32
+sigma = 1.5
+lmbda = 8000.0
+left_matcher = cv.StereoBM_create(max_disp, wsize)
+right_matcher = cv.ximgproc.createRightMatcher(left_matcher)
+left_disp = left_matcher.compute(img1_gray, img2_gray)
+right_disp = right_matcher.compute(img2_gray,img1_gray)
+
+
+# Now create DisparityWLSFilter
+wls_filter = cv.ximgproc.createDisparityWLSFilter(left_matcher)
+wls_filter.setLambda(lmbda)
+wls_filter.setSigmaColor(sigma)
+filtered_disp = wls_filter.filter(left_disp, img1_gray, disparity_map_right=right_disp)
+
+# plt.title(lmbda)
+# plt.imshow(filtered_disp,cmap = 'plasma')
+plt.imshow(img1_rectified)
+
+# plt.imshow(disparity,cmap = 'plasma')
+plt.colorbar(shrink=.7)
 plt.show()

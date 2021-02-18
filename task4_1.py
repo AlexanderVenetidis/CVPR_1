@@ -78,7 +78,7 @@ h, status = cv2.findHomography(pts_src, pts_dst)
 im_out = cv2.warpPerspective(im_src, h, (im_dst.shape[1],im_dst.shape[0]))
 
 # #drawing correspondence between points used
-# draw_matches(im_src, pts_src, im_dst, pts_dst, color=None)
+draw_matches(im_src, pts_src, im_dst, pts_dst, color=None)
 
 # Display images
 # cv2.imshow("Source Image", im_src)
