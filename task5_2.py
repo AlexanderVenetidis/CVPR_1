@@ -207,32 +207,32 @@ plt.show()
 #
 #
 #
-# img2_gray = cv.cvtColor(img2_rectified, cv.COLOR_BGR2GRAY)
-# img1_gray = cv.cvtColor(img1_rectified, cv.COLOR_BGR2GRAY)
-# #
-# stereo = cv.StereoSGBM_create(numDisparities=32, blockSize=27)
-# disparity = stereo.compute(img1_gray,img2_gray)
+img2_gray = cv.cvtColor(img2_rectified, cv.COLOR_BGR2GRAY)
+img1_gray = cv.cvtColor(img1_rectified, cv.COLOR_BGR2GRAY)
 #
-# wsize=5
-# max_disp = 32
-# sigma = 1.5
-# lmbda = 8000.0
-# left_matcher = cv.StereoBM_create(max_disp, wsize)
-# right_matcher = cv.ximgproc.createRightMatcher(left_matcher)
-# left_disp = left_matcher.compute(img1_gray, img2_gray)
-# right_disp = right_matcher.compute(img2_gray,img1_gray)
+stereo = cv.StereoSGBM_create(numDisparities=32, blockSize=27)
+disparity = stereo.compute(img1_gray,img2_gray)
 #
-#
-# # Now create DisparityWLSFilter
-# wls_filter = cv.ximgproc.createDisparityWLSFilter(left_matcher)
-# wls_filter.setLambda(lmbda)
-# wls_filter.setSigmaColor(sigma)
-# filtered_disp = wls_filter.filter(left_disp, img1_gray, disparity_map_right=right_disp)
-#
-# # plt.title(lmbda)
-# # plt.imshow(filtered_disp,cmap = 'plasma')
-# plt.imshow(img1_rectified)
-#
-# # plt.imshow(disparity,cmap = 'plasma')
-# plt.colorbar(shrink=.7)
-# plt.show()
+wsize=5
+max_disp = 32
+sigma = 1.5
+lmbda = 8000.0
+left_matcher = cv.StereoBM_create(max_disp, wsize)
+right_matcher = cv.ximgproc.createRightMatcher(left_matcher)
+left_disp = left_matcher.compute(img1_gray, img2_gray)
+right_disp = right_matcher.compute(img2_gray,img1_gray)
+
+
+# Now create DisparityWLSFilter
+wls_filter = cv.ximgproc.createDisparityWLSFilter(left_matcher)
+wls_filter.setLambda(lmbda)
+wls_filter.setSigmaColor(sigma)
+filtered_disp = wls_filter.filter(left_disp, img1_gray, disparity_map_right=right_disp)
+
+# plt.title(lmbda)
+# plt.imshow(filtered_disp,cmap = 'plasma')
+plt.imshow(img1_rectified)
+
+# plt.imshow(disparity,cmap = 'plasma')
+plt.colorbar(shrink=.7)
+plt.show()
