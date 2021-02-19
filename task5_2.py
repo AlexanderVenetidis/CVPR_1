@@ -8,10 +8,10 @@ import random
 from undistort import undistort_img
 
 
-img1_big = undistort_img(cv.imread('./fd_jpg/IMG_9125.jpg')) # queryImage
-img2_big = undistort_img(cv.imread('./fd_jpg/IMG_9129.jpg')) # trainImage
-img1 = cv.resize(img1_big, (1368, 912))
-img2 = cv.resize(img2_big, (1368, 912))
+img1_big = (cv.imread('./fd_jpg/IMG_9125.jpg')) # queryImage
+img2_big = (cv.imread('./fd_jpg/IMG_9129.jpg')) # trainImage
+img1 = img1_big#cv.resize(img1_big, (1368, 912))
+img2 = img2_big#cv.resize(img2_big, (1368, 912))
 
 def drawMatches(img1, kp1, img2, kp2, matches, color=None):
     """Draws lines between matching keypoints of two images.
@@ -150,13 +150,13 @@ def drawlines(img1,img2,lines,pts1,pts2):
 # drawing its lines on left image
 lines1 = cv.computeCorrespondEpilines(pts2.reshape(-1,1,2), 2,F)
 lines1 = lines1.reshape(-1,3)
-# img5,img6 = drawlines(img1,img2,lines1,pts1,pts2)
+# img5,img6 = drawlines(img1,img2,lines1[:20],pts1[:20],pts2[:20])
 # Find epilines corresponding to points in left image (first image) and
 
 # drawing its lines on right image
 lines2 = cv.computeCorrespondEpilines(pts1.reshape(-1,1,2), 1,F)
 lines2 = lines2.reshape(-1,3)
-# img3,img4 = drawlines(img2,img1,lines2,pts2,pts1)
+# img3,img4 = drawlines(img2,img1,lines2[:20],pts2[:20],pts1[:20])
 
 #
 # plt.subplot(121),plt.imshow(img5)
@@ -195,33 +195,32 @@ img2_rectified = cv.warpPerspective(img2, H2, (w2, h2))
 # # plt.savefig("rectified_images.png")
 # plt.show()
 
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
 img2_gray = cv.cvtColor(img2_rectified, cv.COLOR_BGR2GRAY)
 img1_gray = cv.cvtColor(img1_rectified, cv.COLOR_BGR2GRAY)
-#
-stereo = cv.StereoSGBM_create(numDisparities=32, blockSize=27)
+
+window_size = 3
+min_disp = 0
+num_disp = 110-min_disp
+
+args = dict(minDisparity = min_disp,
+    numDisparities = num_disp,
+    blockSize = 12,
+    P1 = 8*3*window_size**2,
+    P2 = 32*3*window_size**2,
+    disp12MaxDiff = 1,
+    uniquenessRatio = 10,
+    speckleWindowSize = 100,
+    speckleRange = 32)
+stereo = cv.StereoSGBM_create(args)
 disparity = stereo.compute(img1_gray,img2_gray)
 
-wsize=5
-max_disp = 32
-sigma = 1.5
-lmbda = 8000.0
-left_matcher = cv.StereoBM_create(max_disp, wsize)
-right_matcher = cv.ximgproc.createRightMatcher(left_matcher)
-left_disp = left_matcher.compute(img1_gray, img2_gray)
-right_disp = right_matcher.compute(img2_gray,img1_gray)
+# sigma = 1.8
+# lmbda = 1000.0
 
+# left_matcher = cv.StereoSGBM_create(**args)
+# right_matcher = cv.ximgproc.createRightMatcher(left_matcher)
+# left_disp = left_matcher.compute(img1_gray, img2_gray)
+# right_disp = right_matcher.compute(img2_gray,img1_gray)
 
 # Now create DisparityWLSFilter
 wls_filter = cv.ximgproc.createDisparityWLSFilter(left_matcher)
@@ -229,9 +228,11 @@ wls_filter.setLambda(lmbda)
 wls_filter.setSigmaColor(sigma)
 filtered_disp = wls_filter.filter(left_disp, img1_gray, disparity_map_right=right_disp)
 
-# plt.title(lmbda)
-# plt.imshow(filtered_disp,cmap = 'plasma')
+plt.imshow(filtered_disp,cmap = 'plasma')
 # plt.imshow(img1_rectified)
+# plt.show()
+plt.colorbar(shrink=.7)
+plt.show()
 
 plt.imshow(disparity,cmap = 'plasma')
 plt.colorbar(shrink=.7)
