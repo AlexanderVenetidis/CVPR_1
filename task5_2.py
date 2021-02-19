@@ -5,11 +5,11 @@ import cv2 as cv
 import glob
 from matplotlib import pyplot as plt
 import random
+from undistort import undistort_img
 
 
-
-img1_big = cv.imread('./fd_jpg/IMG_9125.jpg') # queryImage
-img2_big = cv.imread('./fd_jpg/IMG_9129.jpg') # trainImage
+img1_big = undistort_img(cv.imread('./fd_jpg/IMG_9125.jpg')) # queryImage
+img2_big = undistort_img(cv.imread('./fd_jpg/IMG_9129.jpg')) # trainImage
 img1 = cv.resize(img1_big, (1368, 912))
 img2 = cv.resize(img2_big, (1368, 912))
 
@@ -231,8 +231,8 @@ filtered_disp = wls_filter.filter(left_disp, img1_gray, disparity_map_right=righ
 
 # plt.title(lmbda)
 # plt.imshow(filtered_disp,cmap = 'plasma')
-plt.imshow(img1_rectified)
+# plt.imshow(img1_rectified)
 
-# plt.imshow(disparity,cmap = 'plasma')
+plt.imshow(disparity,cmap = 'plasma')
 plt.colorbar(shrink=.7)
 plt.show()
