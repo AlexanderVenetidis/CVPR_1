@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import glob
 from matplotlib import pyplot as plt
-
+from undistort import undistort_img
 
 def draw_matches(img1, kp1, img2, kp2, color=None):
     """Draws lines between matching keypoints of two images.
@@ -60,7 +60,7 @@ def draw_matches(img1, kp1, img2, kp2, color=None):
 
 
 # Read source image.
-im_src = cv2.imread('./hg_jpg/IMG_9135.jpg')
+im_src = undistort_img(cv2.imread('./hg_jpg/IMG_9135.jpg'))
 im_src = cv2.resize(im_src, (1368, 912))
 # Four keypoints source image (or use SIFT from task2)
 pts_src = np.array([[445, 290], [413, 517], [989, 277],[989, 500], [489,339],[861,328]])
@@ -69,7 +69,7 @@ pts_dst = np.array([[333, 318],[362, 620],[1023, 131],[1095, 414], [404,364], [8
 
 
 # Read destination image.
-im_dst = cv2.imread('./hg_jpg/IMG_9138_2.jpg')
+im_dst = undistort_img(cv2.imread('./hg_jpg/IMG_9138_2.jpg'))
 im_dst = cv2.resize(im_dst, (1368, 912))
 # Four same keypoints in destination image. (find using mouse)
 
