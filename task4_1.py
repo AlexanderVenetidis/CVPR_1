@@ -48,6 +48,7 @@ def draw_matches(img1, kp1, img2, kp2, color=None):
         # wants locs as a tuple of ints.
         end1 = tuple(np.round(kp1[m]).astype(int))
         end2 = tuple(np.round(kp2[m]).astype(int) + np.array([img1.shape[1], 0]))
+        # print(end1,end2)
         cv2.line(new_img, end1, end2, c, thickness)
         cv2.circle(new_img, end1, r, c, thickness)
         cv2.circle(new_img, end2, r, c, thickness)
@@ -62,23 +63,35 @@ def draw_matches(img1, kp1, img2, kp2, color=None):
 im_src = undistort_img(cv2.imread('./hg_jpg/IMG_9135.jpg'))
 im_src = cv2.resize(im_src, (1368, 912))
 # Four keypoints source image (or use SIFT from task2)
-pts_src = np.array([[445, 290], [413, 517], [989, 277],[989, 500]])
+pts_src = np.array([[445, 290], [413, 517], [989, 277],[989, 500], [489,339],[861,328]])
+
+pts_dst = np.array([[333, 318],[362, 620],[1023, 131],[1095, 414], [404,364], [876,234]])
 
 
 # Read destination image.
 im_dst = undistort_img(cv2.imread('./hg_jpg/IMG_9138_2.jpg'))
 im_dst = cv2.resize(im_dst, (1368, 912))
 # Four same keypoints in destination image. (find using mouse)
-pts_dst = np.array([[333, 318],[362, 620],[1023, 131],[1095, 414]])
 
 # Calculate Homography (h is homography matrix)
 h, status = cv2.findHomography(pts_src, pts_dst)
+print(h)
+
+# print(h.shape, pts_src.shape)
+
+proj_pts = np.float32(pts_src).reshape(-1,1,2)
+
+proj_pts =  cv2.perspectiveTransform(proj_pts, h).reshape(6,2)
+
+
+# print(pts_dst, proj_pts)
+
 
 # Warp source image to destination based on homography
 im_out = cv2.warpPerspective(im_src, h, (im_dst.shape[1],im_dst.shape[0]))
 
 # #drawing correspondence between points used
-draw_matches(im_src, pts_src, im_dst, pts_dst, color=None)
+draw_matches(im_src, pts_src, im_dst, proj_pts, color=None)
 
 # Display images
 # cv2.imshow("Source Image", im_src)
@@ -92,7 +105,7 @@ draw_matches(im_src, pts_src, im_dst, pts_dst, color=None)
 # new_shape = (max(im_dst.shape[0], im_out.shape[0]), im_out.shape[1]+im_out.shape[1], im_dst.shape[2])
 # # plt.show()
 # new_img = np.zeros(new_shape, type(im_dst.flat[0]))
-# # Place images onto the new image.
+# # # Place images onto the new image.
 # new_img[0:im_dst.shape[0],0:im_dst.shape[1]] = im_dst
 # new_img[0:im_out.shape[0],im_dst.shape[1]:im_dst.shape[1]+im_out.shape[1]] = im_out
 # plt.figure(figsize=(15,15))
